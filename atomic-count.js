@@ -18,25 +18,26 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const countRef = ref(db, 'count/value');
+
+const params = new URLSearchParams(window.location.search);
+const sessionName = params.get('name');
+const validSession = /^[a-z]{8}$/.test(sessionName);
+const counterPath = validSession ? `sessions/${sessionName}/count` : 'default/count';
+const counterRef = ref(db, counterPath);
 
 const countDisplay = document.getElementById('count');
 const incrementBtn = document.getElementById('increment');
 const decrementBtn = document.getElementById('decrement');
 
 incrementBtn.addEventListener('click', () => {
-  runTransaction(countRef, (currentValue) => {
-    return (currentValue || 0) + 1;
-  });
+  runTransaction(counterRef, (currentValue) => (currentValue || 0) + 1);
 });
 
 decrementBtn.addEventListener('click', () => {
-  runTransaction(countRef, (currentValue) => {
-    return (currentValue || 0) - 1;
-  });
+  runTransaction(counterRef, (currentValue) => (currentValue || 0) - 1);
 });
 
-onValue(countRef, (snapshot) => {
+onValue(counterRef, (snapshot) => {
   const value = snapshot.val();
   countDisplay.innerText = String(value ?? 0);
 });
