@@ -9,7 +9,8 @@ import {
   remove,
   query,
   orderByChild,
-  limitToFirst
+  limitToFirst,
+  serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 const firebaseConfig = {
@@ -25,18 +26,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-function getSessionName() {
-  const params = new URLSearchParams(window.location.search);
-  const name = params.get('name');
-  return /^[a-z]{8}$/.test(name) ? name : '__DEFAULT_SESSION__';
+const params = new URLSearchParams(window.location.search);
+const sessionName = params.get('name');
+if (!/^[a-z]{8}$/.test(sessionName)) {
+  location.replace(`${location.pathname}?name=hogehoge`);
+  throw new Error("Invalid session name. Redirecting to default.");
 }
 
-const sessionName = getSessionName();
 const counterRef = ref(db, `sessions/${sessionName}/count`);
 const accessRef = ref(db, `sessions/${sessionName}/lastAccessed`);
 
 function updateLastAccessed() {
-  set(accessRef, Date.now());
+  set(accessRef, serverTimestamp());
 }
 
 updateLastAccessed();
