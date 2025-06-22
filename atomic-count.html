@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <title>Atomic Count</title>
 
-  <!-- Shoelace ESM CDN（重要：.esm.js を使用） -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/themes/light.css">
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/shoelace.esm.js"></script>
+  <!-- Shoelace CDN (unpkg に変更) -->
+  <link rel="stylesheet" href="https://unpkg.com/@shoelace-style/shoelace@2.13.0/dist/themes/light.css">
+  <script type="module" src="https://unpkg.com/@shoelace-style/shoelace@2.13.0/dist/shoelace.esm.js"></script>
 
-  <!-- Firebase App + Database via CDN -->
+  <!-- Firebase App + Database -->
   <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
 
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="atomic-count.css">
 </head>
 <body>
@@ -24,6 +25,7 @@
     </div>
   </main>
 
+  <!-- Custom JS -->
   <script type="module" src="atomic-count.js"></script>
 </body>
 </html>
