@@ -4,28 +4,27 @@
   <meta charset="UTF-8">
   <title>Atomic Count</title>
 
-  <!-- Shoelace CDN (unpkg に変更) -->
-  <link rel="stylesheet" href="https://unpkg.com/@shoelace-style/shoelace@2.13.0/dist/themes/light.css">
-  <script type="module" src="https://unpkg.com/@shoelace-style/shoelace@2.13.0/dist/shoelace.esm.js"></script>
+  <!-- ✅ Picnic CSS CDN（スタイル） -->
+  <link rel="stylesheet" href="https://unpkg.com/picnic">
 
-  <!-- Firebase App + Database -->
+  <!-- ✅ Firebase CDN（Realtime Database） -->
   <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
 
-  <!-- Custom CSS -->
+  <!-- ✅ カスタムスタイル -->
   <link rel="stylesheet" href="atomic-count.css">
 </head>
 <body>
   <main>
     <h1>Atomic Count</h1>
     <div class="counter-box">
-      <sl-button id="decrement" variant="danger">−</sl-button>
-      <sl-input id="count" readonly value="0" style="width: 5rem; text-align: center;"></sl-input>
-      <sl-button id="increment" variant="primary">＋</sl-button>
+      <button id="decrement" class="danger">−</button>
+      <input id="count" readonly value="0" />
+      <button id="increment" class="primary">＋</button>
     </div>
   </main>
 
-  <!-- Custom JS -->
+  <!-- ✅ アプリ本体ロジック -->
   <script type="module" src="atomic-count.js"></script>
 </body>
 </html>
