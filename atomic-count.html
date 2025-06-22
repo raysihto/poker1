@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Atomic Count (Firebase)</title>
+
+  <!-- Shoelace CSS + Web Components -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/themes/light.css">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/dist/shoelace.js"></script>
+
+  <!-- Firebase App + Database via CDN -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="atomic-count.css">
+</head>
+<body>
+  <main>
+    <h1>Atomic Count</h1>
+    <div class="counter-box">
+      <sl-button id="decrement" variant="danger">−</sl-button>
+      <sl-input id="count" readonly value="0" style="width: 5rem; text-align: center;"></sl-input>
+      <sl-button id="increment" variant="primary">＋</sl-button>
+    </div>
+  </main>
+
+  <!-- Custom App Logic -->
+  <script type="module" src="atomic-count.js"></script>
+</body>
+</html>
