@@ -7,7 +7,7 @@ import {
   runTransaction
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-// ✅ あなたの Firebase プロジェクト情報をここに貼り付けてください
+// ✅ Firebase プロジェクト構成（あなたの値）
 const firebaseConfig = {
   apiKey: "AIzaSyCHtuRXDVOkUD7rrEmZcAUHyZFYkgyB1tI",
   authDomain: "poker1-86356.firebaseapp.com",
@@ -23,7 +23,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const countRef = ref(db, 'count/value');
 
-// ✅ UI 操作と連携
+// ✅ DOM操作
 const countInput = document.getElementById('count');
 const incrementBtn = document.getElementById('increment');
 const decrementBtn = document.getElementById('decrement');
@@ -42,7 +42,7 @@ decrementBtn.addEventListener('click', () => {
   });
 });
 
-// ✅ リアルタイム反映
+// DB → UI 更新
 onValue(countRef, (snapshot) => {
   const value = snapshot.val();
   countInput.value = String(value ?? 0);
