@@ -1,0 +1,19 @@
+body {
+  font-family: system-ui, sans-serif;
+  padding: 2rem;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+h1 {
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.counter-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
