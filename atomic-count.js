@@ -24,7 +24,7 @@ const db = getDatabase(app);
 const countRef = ref(db, 'count/value');
 
 // ✅ DOM操作
-const countInput = document.getElementById('count');
+const countDisplay = document.getElementById('count');
 const incrementBtn = document.getElementById('increment');
 const decrementBtn = document.getElementById('decrement');
 
@@ -45,5 +45,5 @@ decrementBtn.addEventListener('click', () => {
 // DB → UI 更新
 onValue(countRef, (snapshot) => {
   const value = snapshot.val();
-  countInput.value = String(value ?? 0);
+  countDisplay.innerText = String(value ?? 0);
 });
