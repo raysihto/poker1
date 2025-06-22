@@ -1,4 +1,4 @@
-// Firebase CDNモジュールからインポート
+// ✅ Firebase モジュール読み込み
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getDatabase,
@@ -7,7 +7,7 @@ import {
   runTransaction
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-// Firebase 設定（あなたのプロジェクト用）
+// ✅ あなたの Firebase プロジェクト情報をここに貼り付けてください
 const firebaseConfig = {
   apiKey: "AIzaSyCHtuRXDVOkUD7rrEmZcAUHyZFYkgyB1tI",
   authDomain: "poker1-86356.firebaseapp.com",
@@ -18,31 +18,31 @@ const firebaseConfig = {
   appId: "1:761576027268:web:fc4af1219d45e0c63c3ed1"
 };
 
-// Firebase 初期化
+// ✅ Firebase 初期化
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const countRef = ref(db, 'count/value');
 
-// Shoelace UI 要素の取得
+// ✅ UI 操作と連携
 const countInput = document.getElementById('count');
 const incrementBtn = document.getElementById('increment');
 const decrementBtn = document.getElementById('decrement');
 
-// ボタンイベント: +1
+// Increment
 incrementBtn.addEventListener('click', () => {
   runTransaction(countRef, (currentValue) => {
     return (currentValue || 0) + 1;
   });
 });
 
-// ボタンイベント: -1
+// Decrement
 decrementBtn.addEventListener('click', () => {
   runTransaction(countRef, (currentValue) => {
     return (currentValue || 0) - 1;
   });
 });
 
-// DB → UI 更新（リアルタイム反映）
+// ✅ リアルタイム反映
 onValue(countRef, (snapshot) => {
   const value = snapshot.val();
   countInput.value = String(value ?? 0);
