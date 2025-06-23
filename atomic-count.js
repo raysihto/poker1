@@ -113,6 +113,17 @@ function route() {
     const hash = location.hash;
     if (hash === "#new") {
         show("create");
+        const input = document.getElementById("room-name");
+        input.focus();
+        input.addEventListener(
+            "keydown",
+            (e) => {
+                if (e.key === "Enter") {
+                    document.getElementById("create-room").click();
+                }
+            },
+            { once: true },
+        );
     } else {
         show("main");
         initializeRoom();
