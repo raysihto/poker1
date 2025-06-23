@@ -173,19 +173,19 @@ async function initializeRoom() {
     });
 }
 
-document.getElementById("create-room").addEventListener("click", async () => {
-    const nameInput = document.getElementById("room-name");
-    const rawName = nameInput.value.trim();
-    const name = rawName || "I have no name!";
+document.getElementById("create-room-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
+    const roomName = document.getElementById("room-name").value.trim() || "I have no name!";
     const newRoomId = await generateUnusedRoomId();
     if (!newRoomId) {
         alert("Failed to create room. Reloading...");
         location.reload();
         return;
     }
+    await set(ref(db, `rooms/${newRoomId}/name`), roomName);
+    await set(ref(db, `rooms/${newRoomId}/count`), 0);
     await set(ref(db, `rooms/${newRoomId}/lastAccessed`), serverTimestamp());
-    await set(ref(db, `rooms/${newRoomId}/name`), name);
     location.href = `${location.pathname}?room=${newRoomId}`;
 });
 

@@ -13,9 +13,11 @@
         <main>
             <section id="screen-create" hidden>
                 <h1>Create Room</h1>
-                <label for="room-name">Display name (optional)</label>
-                <input id="room-name" type="text" placeholder="e.g. Today's Count" />
-                <button id="create-room" class="primary">Create</button>
+                <form id="create-room-form">
+                    <label for="room-name">Display name (optional)</label>
+                    <input id="room-name" type="text" placeholder="e.g. Today's Count" />
+                    <button id="create-room" class="primary" type="submit">Create</button>
+                </form>
             </section>
 
             <section id="screen-main" hidden>
