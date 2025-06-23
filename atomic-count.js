@@ -31,7 +31,9 @@ function* b32encodeCrockford(bytes) {
         n += 8;
         while (n >= 5) yield CROCKFORD[(x >>> (n -= 5)) & 31];
     }
-    if (n > 0) yield CROCKFORD[(x << (5 - n)) & 31];
+    if (n > 0) {
+        yield CROCKFORD[(x << (5 - n)) & 31];
+    }
 }
 
 async function generateRoomId() {
@@ -69,7 +71,9 @@ async function generateUnusedRoomId(maxAttempts = 5, baseDelay = 10) {
 }
 
 async function isValidRoom(roomId) {
-    if (!RE_CROCKFORD.test(roomId)) return false;
+    if (!RE_CROCKFORD.test(roomId)) {
+        return false;
+    }
     const accessRef = ref(db, `rooms/${roomId}/lastAccessed`);
     const snapshot = await get(accessRef);
     const lastAccessed = snapshot.val();
@@ -80,15 +84,12 @@ function updateLastAccessed(accessRef) {
     set(accessRef, serverTimestamp());
 }
 
-// Lightweight room cleanup scans only the 10 oldest rooms by lastAccessed,
-// minimizing client overhead and database reads. This is generally sufficient:
-//   - assuming evenly distributed access, room creation and expiration occur at similar rates.
-//   - Even if many rooms accumulate, the 3-minute cleanup interval ensures expired rooms are
-//     gradually purged—especially during sustained activity—without needing full traversal.
 let lastCleanup = 0;
 function cleanupStaleRooms() {
     const now = Date.now();
-    if (now - lastCleanup < CLEANUP_INTERVAL) return;
+    if (now - lastCleanup < CLEANUP_INTERVAL) {
+        return;
+    }
     lastCleanup = now;
 
     const roomsQuery = query(ref(db, "rooms"), orderByChild("lastAccessed"), limitToFirst(10));
@@ -103,42 +104,78 @@ function cleanupStaleRooms() {
     });
 }
 
-const params = new URLSearchParams(window.location.search);
-const roomId = params.get("room");
-
-if (!(await isValidRoom(roomId))) {
-    const newRoomId = await generateUnusedRoomId();
-    if (newRoomId === null) {
-        alert("Failed to create a new room. The page will reload and try again.");
-        location.reload();
-        throw new Error("Unreachable code executed.");
-    }
-    await set(ref(db, `rooms/${newRoomId}/lastAccessed`), serverTimestamp());
-    location.replace(`${location.pathname}?room=${newRoomId}`);
-    throw new Error("Unreachable code executed.");
+function show(screen) {
+    document.getElementById("screen-create").hidden = screen !== "create";
+    document.getElementById("screen-main").hidden = screen !== "main";
 }
 
-const counterRef = ref(db, `rooms/${roomId}/count`);
-const accessRef = ref(db, `rooms/${roomId}/lastAccessed`);
+function route() {
+    const hash = location.hash;
+    if (hash === "#new") {
+        show("create");
+    } else {
+        show("main");
+        initializeRoom();
+    }
+}
 
-updateLastAccessed(accessRef);
+window.addEventListener("hashchange", route);
 
-const countDisplay = document.getElementById("count");
-const incrementBtn = document.getElementById("increment");
-const decrementBtn = document.getElementById("decrement");
+async function initializeRoom() {
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get("room");
 
-incrementBtn.addEventListener("click", () => {
-    runTransaction(counterRef, (currentValue) => (currentValue || 0) + 1);
+    if (!(await isValidRoom(roomId))) {
+        location.hash = "#new";
+        return;
+    }
+
+    const counterRef = ref(db, `rooms/${roomId}/count`);
+    const accessRef = ref(db, `rooms/${roomId}/lastAccessed`);
+    const nameRef = ref(db, `rooms/${roomId}/name`);
+
     updateLastAccessed(accessRef);
+
+    const countDisplay = document.getElementById("count");
+    const incrementBtn = document.getElementById("increment");
+    const decrementBtn = document.getElementById("decrement");
+
+    incrementBtn.addEventListener("click", () => {
+        runTransaction(counterRef, (currentValue) => (currentValue || 0) + 1);
+        updateLastAccessed(accessRef);
+    });
+
+    decrementBtn.addEventListener("click", () => {
+        runTransaction(counterRef, (currentValue) => (currentValue || 0) - 1);
+        updateLastAccessed(accessRef);
+    });
+
+    onValue(counterRef, (snapshot) => {
+        const value = snapshot.val();
+        countDisplay.innerText = String(value ?? 0);
+        setTimeout(() => cleanupStaleRooms(), 0);
+    });
+
+    get(nameRef).then((snap) => {
+        const name = snap.val();
+        document.getElementById("room-name-display").textContent = name || "";
+    });
+}
+
+document.getElementById("create-room").addEventListener("click", async () => {
+    const nameInput = document.getElementById("room-name");
+    const rawName = nameInput.value.trim();
+    const name = rawName || "I have no name!";
+
+    const newRoomId = await generateUnusedRoomId();
+    if (!newRoomId) {
+        alert("Failed to create room. Reloading...");
+        location.reload();
+        return;
+    }
+    await set(ref(db, `rooms/${newRoomId}/lastAccessed`), serverTimestamp());
+    await set(ref(db, `rooms/${newRoomId}/name`), name);
+    location.href = `${location.pathname}?room=${newRoomId}`;
 });
 
-decrementBtn.addEventListener("click", () => {
-    runTransaction(counterRef, (currentValue) => (currentValue || 0) - 1);
-    updateLastAccessed(accessRef);
-});
-
-onValue(counterRef, (snapshot) => {
-    const value = snapshot.val();
-    countDisplay.innerText = String(value ?? 0);
-    setTimeout(() => cleanupStaleRooms(), 0);
-});
+route();
