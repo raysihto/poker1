@@ -84,20 +84,32 @@ function updateLastAccessed(accessRef) {
     set(accessRef, serverTimestamp());
 }
 
+// Lightweight room cleanup scans only the 10 oldest rooms by lastAccessed,
+// minimizing client overhead and database reads. This is generally sufficient:
+//   - assuming evenly distributed access, room creation and expiration occur at similar rates.
+//   - Even if many rooms accumulate, the 3-minute cleanup interval ensures expired rooms are
+//     gradually purged—especially during sustained activity—without needing full traversal.
 let lastCleanup = 0;
 function cleanupStaleRooms() {
+    console.log(`cleanupStaleRooms()`);
     const now = Date.now();
     if (now - lastCleanup < CLEANUP_INTERVAL) {
+        console.log(`cleanupStaleRooms() skipped, last cleanup was ${now - lastCleanup} msec ago`);
         return;
     }
     lastCleanup = now;
+    console.log(`cleanupStaleRooms() started at ${new Date(now).toISOString()}`);
 
     const roomsQuery = query(ref(db, "rooms"), orderByChild("lastAccessed"), limitToFirst(10));
+    console.log(`cleanupStaleRooms() query: ${roomsQuery.toString()}`);
     get(roomsQuery).then((snapshot) => {
+        console.log(`cleanupStaleRooms() snapshot: ${snapshot.val()}`);
         snapshot.forEach((child) => {
             const room = child.val();
             const last = room?.lastAccessed;
+            console.log(`cleanupStaleRooms() room ${child.key}: lastAccessed=${last}`);
             if (typeof last === "number" && now - last > STALE_THRESHOLD) {
+                console.log(`cleanupStaleRooms() removing stale room ${child.key}`);
                 remove(ref(db, `rooms/${child.key}`));
             }
         });
@@ -136,10 +148,13 @@ async function initializeRoom() {
     const params = new URLSearchParams(window.location.search);
     const roomId = params.get("room");
 
+    console.log(`initializeRoom(): room=${roomId}`);
     if (!(await isValidRoom(roomId))) {
+        console.log(`invalid or stale room`);
         location.hash = "#new";
         return;
     }
+    console.log(`valid active room`);
 
     const counterRef = ref(db, `rooms/${roomId}/count`);
     const accessRef = ref(db, `rooms/${roomId}/lastAccessed`);
@@ -164,7 +179,9 @@ async function initializeRoom() {
     onValue(counterRef, (snapshot) => {
         const value = snapshot.val();
         countDisplay.innerText = String(value ?? 0);
+        console.log(`count updated: ${value}`);
         setTimeout(() => cleanupStaleRooms(), 0);
+        console.log(`timeout set`);
     });
 
     get(nameRef).then((snap) => {
